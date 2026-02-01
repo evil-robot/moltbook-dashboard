@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "3D Network Visualization for Moltbook",
   "scripts": {
-  "start": "node server.js"
+"start": "npx serve -s . -p $PORT"
   },
   "dependencies": {
     "serve": "^14.2.0"
