@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Artists & Robots | Moltbook - Pure Agent Network Fields</title>
     <script src="https://unpkg.com/3d-force-graph"></script>
+    <script src="https://unpkg.com/force-graph"></script>
     <style>
         body {
             margin: 0;
@@ -13,6 +14,7 @@
             background: #000011;
             font-family: 'Courier New', monospace;
             color: #0f0;
+            touch-action: none;
         }
         
         #graph-container {
@@ -22,31 +24,59 @@
         
         #thesis-panel {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            top: 10px;
+            left: 10px;
             background: rgba(0, 0, 0, 0.95);
             border: 2px solid #00ff00;
-            padding: 25px;
-            max-width: 400px;
+            padding: 15px;
+            max-width: 90vw;
+            max-height: 40vh;
+            overflow-y: auto;
             z-index: 1000;
             box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
         }
         
+        @media (min-width: 768px) {
+            #thesis-panel {
+                max-width: 400px;
+                max-height: 80vh;
+                top: 20px;
+                left: 20px;
+                padding: 25px;
+            }
+        }
+        
         h1 {
-            margin: 0 0 15px 0;
-            font-size: 20px;
+            margin: 0 0 10px 0;
+            font-size: 16px;
             color: #00ff00;
             text-transform: uppercase;
             text-shadow: 0 0 15px #0f0;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
+        }
+        
+        @media (min-width: 768px) {
+            h1 {
+                font-size: 20px;
+                letter-spacing: 2px;
+                margin-bottom: 15px;
+            }
         }
         
         .thesis {
             color: #fff;
-            font-size: 13px;
-            line-height: 1.8;
-            margin-bottom: 20px;
+            font-size: 11px;
+            line-height: 1.6;
+            margin-bottom: 15px;
             font-weight: 300;
+        }
+        
+        @media (min-width: 768px) {
+            .thesis {
+                font-size: 13px;
+                line-height: 1.8;
+                margin-bottom: 20px;
+            }
         }
         
         .thesis strong {
@@ -57,20 +87,41 @@
         .purity-metric {
             background: rgba(0, 255, 0, 0.1);
             border: 1px solid #00ff00;
-            padding: 15px;
-            margin: 15px 0;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        @media (min-width: 768px) {
+            .purity-metric {
+                padding: 15px;
+                margin: 15px 0;
+            }
         }
         
         .purity-metric h2 {
-            margin: 0 0 10px 0;
-            font-size: 14px;
+            margin: 0 0 8px 0;
+            font-size: 12px;
             color: #00ff00;
             text-transform: uppercase;
         }
         
+        @media (min-width: 768px) {
+            .purity-metric h2 {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+        }
+        
         .metric {
-            margin: 8px 0;
-            font-size: 12px;
+            margin: 6px 0;
+            font-size: 11px;
+        }
+        
+        @media (min-width: 768px) {
+            .metric {
+                margin: 8px 0;
+                font-size: 12px;
+            }
         }
         
         .metric-label {
@@ -80,38 +131,77 @@
         .metric-value {
             color: #00ff00;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
+        }
+        
+        @media (min-width: 768px) {
+            .metric-value {
+                font-size: 16px;
+            }
         }
         
         #field-info {
-            margin-top: 20px;
-            font-size: 11px;
+            margin-top: 15px;
+            font-size: 10px;
             color: #666;
-            line-height: 1.6;
+            line-height: 1.5;
+        }
+        
+        @media (min-width: 768px) {
+            #field-info {
+                margin-top: 20px;
+                font-size: 11px;
+                line-height: 1.6;
+            }
         }
         
         #controls-panel {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            bottom: 10px;
+            right: 10px;
             background: rgba(0, 0, 0, 0.95);
             border: 2px solid #00ff00;
-            padding: 20px;
-            max-width: 280px;
+            padding: 10px;
+            max-width: 150px;
             z-index: 1000;
             box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
         }
         
+        @media (min-width: 768px) {
+            #controls-panel {
+                top: 20px;
+                bottom: auto;
+                right: 20px;
+                padding: 20px;
+                max-width: 280px;
+            }
+        }
+        
         .control {
-            margin: 12px 0;
+            margin: 8px 0;
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .control {
+                display: block;
+                margin: 12px 0;
+            }
         }
         
         .control label {
             display: block;
             color: #00ff00;
-            font-size: 11px;
-            margin-bottom: 5px;
+            font-size: 9px;
+            margin-bottom: 3px;
             text-transform: uppercase;
+        }
+        
+        @media (min-width: 768px) {
+            .control label {
+                font-size: 11px;
+                margin-bottom: 5px;
+            }
         }
         
         input[type="range"] {
@@ -123,14 +213,22 @@
             background: #000;
             color: #00ff00;
             border: 1px solid #00ff00;
-            padding: 10px 15px;
+            padding: 8px 10px;
             cursor: pointer;
             font-family: 'Courier New', monospace;
-            font-size: 11px;
-            margin: 5px 0;
+            font-size: 10px;
+            margin: 3px 0;
             width: 100%;
             transition: all 0.3s;
             text-transform: uppercase;
+        }
+        
+        @media (min-width: 768px) {
+            button {
+                padding: 10px 15px;
+                font-size: 11px;
+                margin: 5px 0;
+            }
         }
         
         button:hover {
@@ -141,59 +239,107 @@
         
         #post-viewer {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            max-height: 250px;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            max-height: 40vh;
             background: rgba(0, 0, 0, 0.95);
             border: 2px solid #ff8800;
-            padding: 20px;
+            padding: 15px;
             z-index: 1000;
             box-shadow: 0 0 20px rgba(255, 136, 0, 0.5);
             overflow-y: auto;
             display: none;
         }
         
+        @media (min-width: 768px) {
+            #post-viewer {
+                bottom: 20px;
+                left: 20px;
+                right: 20px;
+                max-height: 250px;
+                padding: 20px;
+            }
+        }
+        
         #post-viewer h2 {
-            margin: 0 0 10px 0;
-            font-size: 16px;
+            margin: 0 0 8px 0;
+            font-size: 14px;
             color: #ff8800;
+        }
+        
+        @media (min-width: 768px) {
+            #post-viewer h2 {
+                margin-bottom: 10px;
+                font-size: 16px;
+            }
         }
         
         #post-viewer .post-content {
             color: #fff;
-            font-size: 12px;
-            line-height: 1.6;
+            font-size: 11px;
+            line-height: 1.5;
             white-space: pre-wrap;
+        }
+        
+        @media (min-width: 768px) {
+            #post-viewer .post-content {
+                font-size: 12px;
+                line-height: 1.6;
+            }
         }
         
         #post-viewer .post-meta {
             color: #666;
-            font-size: 10px;
-            margin-top: 10px;
+            font-size: 9px;
+            margin-top: 8px;
+        }
+        
+        @media (min-width: 768px) {
+            #post-viewer .post-meta {
+                font-size: 10px;
+                margin-top: 10px;
+            }
         }
         
         #post-viewer .close-btn {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 8px;
+            right: 8px;
             background: none;
             border: 1px solid #ff8800;
             color: #ff8800;
-            padding: 5px 10px;
+            padding: 4px 8px;
             cursor: pointer;
-            font-size: 10px;
+            font-size: 9px;
             width: auto;
+        }
+        
+        @media (min-width: 768px) {
+            #post-viewer .close-btn {
+                top: 10px;
+                right: 10px;
+                padding: 5px 10px;
+                font-size: 10px;
+            }
         }
         
         #copyright {
             position: absolute;
-            bottom: 10px;
-            right: 10px;
-            font-size: 11px;
+            bottom: 5px;
+            right: 5px;
+            font-size: 9px;
             color: #666;
             text-align: right;
             z-index: 1000;
+        }
+        
+        @media (min-width: 768px) {
+            #copyright {
+                bottom: 10px;
+                right: 10px;
+                font-size: 11px;
+            }
         }
         
         #loading {
@@ -201,11 +347,18 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 28px;
+            font-size: 20px;
             color: #00ff00;
             text-align: center;
             z-index: 2000;
             text-shadow: 0 0 30px #0f0;
+            padding: 0 20px;
+        }
+        
+        @media (min-width: 768px) {
+            #loading {
+                font-size: 28px;
+            }
         }
         
         .loading-dot {
@@ -227,9 +380,15 @@
         }
         
         .checkbox-control {
-            display: flex;
-            align-items: center;
-            margin: 12px 0;
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .checkbox-control {
+                display: flex;
+                align-items: center;
+                margin: 12px 0;
+            }
         }
         
         .checkbox-control input[type="checkbox"] {
@@ -246,10 +405,19 @@
         }
 
         .progress-bar {
-            margin-top: 15px;
+            margin-top: 10px;
             background: #001100;
-            height: 25px;
+            height: 20px;
             border: 2px solid #00ff00;
+            width: 80vw;
+            max-width: 400px;
+        }
+        
+        @media (min-width: 768px) {
+            .progress-bar {
+                margin-top: 15px;
+                height: 25px;
+            }
         }
 
         .progress-fill {
@@ -258,15 +426,29 @@
             transition: width 0.3s;
             box-shadow: 0 0 15px #0f0;
         }
+        
+        .mobile-hint {
+            display: block;
+            font-size: 10px;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        @media (min-width: 768px) {
+            .mobile-hint {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
     <div id="loading">
         MAPPING PURE AGENT FIELDS<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span><br>
-        <span style="font-size: 14px;">Batch <span id="batch-progress">0/20</span> | <span id="fetch-progress">0</span> posts</span>
-        <div class="progress-bar" style="width: 400px; margin: 15px auto;">
+        <span style="font-size: 12px;">Fetched <span id="fetch-progress">0</span> / <span id="total-available">?</span> posts</span>
+        <div class="progress-bar" style="margin: 10px auto;">
             <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
         </div>
+        <span style="font-size: 11px; color: #888;">Loading full network...</span>
     </div>
     
     <div id="thesis-panel">
@@ -307,43 +489,42 @@
             ⚡ Connections = Unmediated discourse<br><br>
             <em>This is what social networks look like without platform manipulation. Pure agent-to-agent fields.</em>
         </div>
+        
+        <div class="mobile-hint">
+            Tap nodes to explore. Pinch to zoom.
+        </div>
     </div>
     
     <div id="controls-panel">
-        <h1>Field Controls</h1>
+        <h1 style="font-size: 12px; margin-bottom: 8px;">Controls</h1>
         
         <div class="control">
-            <label>Field Density: <span id="node-size-val">2</span></label>
-            <input type="range" id="node-size" min="0.5" max="10" step="0.5" value="2">
+            <label>Field Density: <span id="node-size-val">1.5</span></label>
+            <input type="range" id="node-size" min="0.5" max="10" step="0.5" value="1.5">
         </div>
         
         <div class="control">
-            <label>Connection Strength: <span id="link-opacity-val">0.25</span></label>
-            <input type="range" id="link-opacity" min="0" max="1" step="0.05" value="0.25">
+            <label>Connection: <span id="link-opacity-val">0.15</span></label>
+            <input type="range" id="link-opacity" min="0" max="1" step="0.05" value="0.15">
         </div>
         
         <div class="control">
-            <label>Field Repulsion: <span id="force-strength-val">-60</span></label>
-            <input type="range" id="force-strength" min="-300" max="-20" step="10" value="-60">
+            <label>Repulsion: <span id="force-strength-val">-50</span></label>
+            <input type="range" id="force-strength" min="-300" max="-20" step="10" value="-50">
         </div>
         
         <div class="checkbox-control">
-            <input type="checkbox" id="show-particles" checked>
+            <input type="checkbox" id="show-particles">
             <label for="show-particles">Signal Flow</label>
         </div>
         
-        <div class="checkbox-control">
-            <input type="checkbox" id="show-fields" checked>
-            <label for="show-fields">Agent Fields</label>
-        </div>
-        
-        <button id="reset-camera">Reset View</button>
-        <button id="center-you">Focus Your Field</button>
-        <button id="refresh-data">Refresh Network</button>
+        <button id="reset-camera">Reset</button>
+        <button id="center-you">Your Field</button>
+        <button id="refresh-data">Refresh</button>
     </div>
     
     <div id="post-viewer">
-        <button class="close-btn" onclick="document.getElementById('post-viewer').style.display='none'">✕ Close</button>
+        <button class="close-btn" onclick="document.getElementById('post-viewer').style.display='none'">✕</button>
         <h2 id="post-title"></h2>
         <div class="post-content" id="post-content"></div>
         <div class="post-meta" id="post-meta"></div>
@@ -352,47 +533,63 @@
     <div id="graph-container"></div>
     
     <div id="copyright">
-        COPYRIGHT 2026 Jason Alan Snyder - Artists & Robots<br>
-        Pure Agent Network Thesis<br>
-        ALL RIGHTS RESERVED - jas@artistsandrobots.com
+        © 2026 Jason Alan Snyder<br>
+        Artists & Robots
     </div>
 
     <script>
         const API_BASE = 'https://www.moltbook.com/api/v1';
+        const IS_MOBILE = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
         let Graph;
         
         async function fetchMoltbookData() {
             try {
                 const allPosts = [];
                 const batchSize = 100;
-                const numBatches = 20;
                 
-                for (let i = 0; i < numBatches; i++) {
+                // Fetch until we hit the end OR reach reasonable limits
+                const maxBatches = IS_MOBILE ? 30 : 100; // 3k mobile, 10k desktop
+                let consecutiveEmpty = 0;
+                
+                for (let i = 0; i < maxBatches; i++) {
                     const offset = i * batchSize;
-                    const progress = ((i / numBatches) * 100).toFixed(0);
                     
-                    document.getElementById('batch-progress').textContent = `${i + 1}/${numBatches}`;
                     document.getElementById('fetch-progress').textContent = allPosts.length;
+                    const progress = Math.min(100, ((i / maxBatches) * 100)).toFixed(0);
                     document.getElementById('progress-fill').style.width = progress + '%';
                     
                     const response = await fetch(`${API_BASE}/posts?sort=new&limit=${batchSize}&offset=${offset}`);
                     const data = await response.json();
                     
                     if (!data.success || !data.posts || data.posts.length === 0) {
-                        console.log(`Stopped at batch ${i + 1}`);
-                        break;
+                        consecutiveEmpty++;
+                        if (consecutiveEmpty >= 3) {
+                            console.log(`Stopped at batch ${i + 1}: no more posts`);
+                            break;
+                        }
+                        continue;
                     }
                     
+                    consecutiveEmpty = 0;
                     allPosts.push(...data.posts);
                     
+                    // Update total available estimate
+                    if (data.total) {
+                        document.getElementById('total-available').textContent = data.total.toLocaleString();
+                    }
+                    
                     if (data.posts.length < batchSize) {
+                        console.log(`Stopped at batch ${i + 1}: reached end`);
                         break;
                     }
                     
-                    await new Promise(resolve => setTimeout(resolve, 100));
+                    // Small delay every 10 batches to avoid rate limiting
+                    if (i % 10 === 0 && i > 0) {
+                        await new Promise(resolve => setTimeout(resolve, 200));
+                    }
                 }
                 
-                console.log(`Fetched ${allPosts.length} posts`);
+                console.log(`Total posts fetched: ${allPosts.length}`);
                 
                 const nodes = [];
                 const links = [];
@@ -461,7 +658,7 @@
                     }
                 });
                 
-                console.log(`Nodes: ${nodes.length}, Links: ${links.length}`);
+                console.log(`Nodes: ${nodes.length}, Links: ${links.length}, Agents: ${agents.size}`);
                 
                 return {
                     nodes: nodes,
@@ -504,66 +701,94 @@
             }
             
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('agent-count').textContent = data.agentCount;
-            document.getElementById('posts-count').textContent = data.signalCount;
-            document.getElementById('connection-count').textContent = data.links.length;
+            document.getElementById('agent-count').textContent = data.agentCount.toLocaleString();
+            document.getElementById('posts-count').textContent = data.signalCount.toLocaleString();
+            document.getElementById('connection-count').textContent = data.links.length.toLocaleString();
             
             const elem = document.getElementById('graph-container');
             
-            Graph = ForceGraph3D()(elem)
-                .graphData(data)
-                .nodeLabel(node => {
-                    if (node.type === 'agent') {
-                        return `<strong>AGENT: ${node.name}</strong><br>Signals: ${node.signalCount}<br>Field Strength: ${node.fieldStrength}${node.isYou ? '<br><span style="color:#0f0">⬅️ YOUR FIELD</span>' : ''}`;
-                    }
-                    return `<strong>${node.title}</strong><br>Agent: ${node.author}<br><em>Click to read signal</em>`;
-                })
-                .nodeColor(getFieldColor)
-                .nodeRelSize(2)
-                .nodeVal(node => {
-                    if (node.type === 'agent') {
-                        const totalField = node.signalCount + node.fieldStrength;
-                        return node.isYou ? 30 : Math.max(8, totalField * 1.5);
-                    }
-                    return 1.5;
-                })
-                .nodeOpacity(0.95)
-                .linkColor(link => link.type === 'discourse' ? 'rgba(0, 255, 255, 0.2)' : 'rgba(100, 255, 100, 0.15)')
-                .linkWidth(0.3)
-                .linkOpacity(0.25)
-                .linkDirectionalParticles(2)
-                .linkDirectionalParticleWidth(1.5)
-                .linkDirectionalParticleSpeed(0.003)
-                .linkDirectionalParticleColor(link => link.type === 'discourse' ? '#00ffff' : '#00ff00')
-                .backgroundColor('#000011')
-                .showNavInfo(false)
-                .enableNodeDrag(false)
-                .onNodeClick(node => {
-                    if (node.type === 'signal') {
-                        showSignal(node);
-                    } else {
-                        const distance = 150;
-                        const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
-                        Graph.cameraPosition(
-                            { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
-                            node,
-                            1000
-                        );
-                    }
-                });
-            
-            Graph.cameraPosition({ z: 900 });
-            Graph.d3Force('charge').strength(-60);
-            Graph.d3Force('link').distance(18);
+            if (IS_MOBILE) {
+                Graph = ForceGraph()(elem)
+                    .graphData(data)
+                    .nodeLabel(node => {
+                        if (node.type === 'agent') {
+                            return `${node.name} (${node.signalCount} signals)`;
+                        }
+                        return node.title;
+                    })
+                    .nodeColor(getFieldColor)
+                    .nodeRelSize(2)
+                    .nodeVal(node => {
+                        if (node.type === 'agent') {
+                            const totalField = node.signalCount + node.fieldStrength;
+                            return node.isYou ? 15 : Math.max(4, totalField * 0.8);
+                        }
+                        return 1;
+                    })
+                    .linkColor(link => link.type === 'discourse' ? 'rgba(0, 255, 255, 0.2)' : 'rgba(100, 255, 100, 0.1)')
+                    .linkWidth(0.3)
+                    .backgroundColor('#000011')
+                    .enableNodeDrag(true)
+                    .onNodeClick(node => {
+                        if (node.type === 'signal') {
+                            showSignal(node);
+                        }
+                    });
+            } else {
+                Graph = ForceGraph3D()(elem)
+                    .graphData(data)
+                    .nodeLabel(node => {
+                        if (node.type === 'agent') {
+                            return `<strong>AGENT: ${node.name}</strong><br>Signals: ${node.signalCount}<br>Field Strength: ${node.fieldStrength}${node.isYou ? '<br><span style="color:#0f0">⬅️ YOUR FIELD</span>' : ''}`;
+                        }
+                        return `<strong>${node.title}</strong><br>Agent: ${node.author}<br><em>Click to read signal</em>`;
+                    })
+                    .nodeColor(getFieldColor)
+                    .nodeRelSize(1.5)
+                    .nodeVal(node => {
+                        if (node.type === 'agent') {
+                            const totalField = node.signalCount + node.fieldStrength;
+                            return node.isYou ? 25 : Math.max(6, totalField * 1.2);
+                        }
+                        return 1.2;
+                    })
+                    .nodeOpacity(0.95)
+                    .linkColor(link => link.type === 'discourse' ? 'rgba(0, 255, 255, 0.15)' : 'rgba(100, 255, 100, 0.1)')
+                    .linkWidth(0.2)
+                    .linkOpacity(0.15)
+                    .linkDirectionalParticles(0)
+                    .backgroundColor('#000011')
+                    .showNavInfo(false)
+                    .enableNodeDrag(false)
+                    .onNodeClick(node => {
+                        if (node.type === 'signal') {
+                            showSignal(node);
+                        } else {
+                            const distance = 150;
+                            const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
+                            Graph.cameraPosition(
+                                { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
+                                node,
+                                1000
+                            );
+                        }
+                    });
+                
+                Graph.cameraPosition({ z: 1200 });
+                Graph.d3Force('charge').strength(-50);
+                Graph.d3Force('link').distance(12);
+            }
             
             setupControls();
         }
         
         function setupControls() {
+            if (IS_MOBILE) return;
+            
             document.getElementById('link-opacity').addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
                 document.getElementById('link-opacity-val').textContent = val;
-                Graph.linkOpacity(val);
+                if (Graph.linkOpacity) Graph.linkOpacity(val);
             });
             
             document.getElementById('node-size').addEventListener('input', (e) => {
@@ -576,27 +801,39 @@
                 const val = parseInt(e.target.value);
                 document.getElementById('force-strength-val').textContent = val;
                 Graph.d3Force('charge').strength(val);
-                Graph.d3ReheatSimulation();
+                if (Graph.d3ReheatSimulation) Graph.d3ReheatSimulation();
             });
             
-            document.getElementById('show-particles').addEventListener('change', (e) => {
-                Graph.linkDirectionalParticles(e.target.checked ? 2 : 0);
+            document.getElementById('show-particles')?.addEventListener('change', (e) => {
+                if (Graph.linkDirectionalParticles) {
+                    Graph.linkDirectionalParticles(e.target.checked ? 1 : 0);
+                    Graph.linkDirectionalParticleSpeed(0.002);
+                }
             });
             
             document.getElementById('reset-camera').addEventListener('click', () => {
-                Graph.cameraPosition({ z: 900 }, null, 1000);
+                if (Graph.cameraPosition) {
+                    Graph.cameraPosition({ z: 1200 }, null, 1000);
+                } else if (Graph.zoom) {
+                    Graph.zoom(1);
+                }
             });
             
             document.getElementById('center-you').addEventListener('click', () => {
                 const yourNode = Graph.graphData().nodes.find(n => n.type === 'agent' && n.isYou);
                 if (yourNode) {
-                    const distance = 150;
-                    const distRatio = 1 + distance/Math.hypot(yourNode.x, yourNode.y, yourNode.z);
-                    Graph.cameraPosition(
-                        { x: yourNode.x * distRatio, y: yourNode.y * distRatio, z: yourNode.z * distRatio },
-                        yourNode,
-                        1000
-                    );
+                    if (Graph.cameraPosition) {
+                        const distance = 150;
+                        const distRatio = 1 + distance/Math.hypot(yourNode.x, yourNode.y, yourNode.z);
+                        Graph.cameraPosition(
+                            { x: yourNode.x * distRatio, y: yourNode.y * distRatio, z: yourNode.z * distRatio },
+                            yourNode,
+                            1000
+                        );
+                    } else if (Graph.centerAt) {
+                        Graph.centerAt(yourNode.x, yourNode.y, 1000);
+                        Graph.zoom(3, 1000);
+                    }
                 }
             });
             
@@ -607,7 +844,7 @@
         
         initGraph();
         
-        setInterval(() => location.reload(), 10 * 60 * 1000);
+        setInterval(() => location.reload(), 15 * 60 * 1000);
     </script>
 </body>
 </html>
