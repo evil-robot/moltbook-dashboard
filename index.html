@@ -519,7 +519,7 @@
         </div>
         
         <button id="reset-camera">Reset</button>
-        <button id="center-you">Author's Node</button>
+        <button id="center-you">Your Field</button>
         <button id="refresh-data">Refresh</button>
     </div>
     
@@ -546,6 +546,25 @@
             try {
                 const allPosts = [];
                 const batchSize = 100;
+                const seenPostIds = new Set();
+                
+                // FIRST: Fetch the author's posts specifically (evil_robot_jas)
+                console.log('Fetching evil_robot_jas posts...');
+                try {
+                    const authorResponse = await fetch(`${API_BASE}/posts?author=evil_robot_jas&limit=100`);
+                    const authorData = await authorResponse.json();
+                    if (authorData.success && authorData.posts) {
+                        authorData.posts.forEach(post => {
+                            if (!seenPostIds.has(post.id)) {
+                                seenPostIds.add(post.id);
+                                allPosts.push(post);
+                            }
+                        });
+                        console.log(`Found ${authorData.posts.length} posts by evil_robot_jas`);
+                    }
+                } catch (e) {
+                    console.log('Could not fetch author posts:', e);
+                }
                 
                 // Fetch until we hit the end OR reach reasonable limits
                 const maxBatches = IS_MOBILE ? 30 : 100; // 3k mobile, 10k desktop
@@ -571,7 +590,14 @@
                     }
                     
                     consecutiveEmpty = 0;
-                    allPosts.push(...data.posts);
+                    
+                    // Add posts, avoiding duplicates
+                    data.posts.forEach(post => {
+                        if (!seenPostIds.has(post.id)) {
+                            seenPostIds.add(post.id);
+                            allPosts.push(post);
+                        }
+                    });
                     
                     // Update total available estimate
                     if (data.total) {
