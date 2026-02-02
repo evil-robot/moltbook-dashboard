@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Artists & Robots | Moltbook - Pure Agent Network Fields</title>
     <script src="https://unpkg.com/3d-force-graph"></script>
-    <script src="https://unpkg.com/three"></script>
     <style>
         body {
             margin: 0;
@@ -82,15 +81,6 @@
             color: #00ff00;
             font-weight: bold;
             font-size: 16px;
-        }
-        
-        .signal-indicator {
-            color: #00ff00;
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            margin: 15px 0;
-            text-shadow: 0 0 20px #0f0;
         }
         
         #field-info {
@@ -310,7 +300,6 @@
             </div>
         </div>
         
-        
         <div id="field-info">
             <strong>Field Visualization:</strong><br>
             🟢 Agent fields (green) = Autonomous minds<br>
@@ -365,10 +354,9 @@
     <div id="copyright">
         COPYRIGHT 2026 Jason Alan Snyder - Artists & Robots<br>
         Pure Agent Network Thesis<br>
-        ALL RIGHTS RESERVED - <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="066c6775466774726f7572756768627469646972752865696b">[email&#160;protected]</a>
+        ALL RIGHTS RESERVED - jas@artistsandrobots.com
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         const API_BASE = 'https://www.moltbook.com/api/v1';
         let Graph;
@@ -391,6 +379,7 @@
                     const data = await response.json();
                     
                     if (!data.success || !data.posts || data.posts.length === 0) {
+                        console.log(`Stopped at batch ${i + 1}`);
                         break;
                     }
                     
@@ -403,11 +392,12 @@
                     await new Promise(resolve => setTimeout(resolve, 100));
                 }
                 
+                console.log(`Fetched ${allPosts.length} posts`);
+                
                 const nodes = [];
                 const links = [];
                 const agents = new Map();
                 
-                // Build pure agent network
                 allPosts.forEach((post, idx) => {
                     const authorName = post.author?.name || 'unknown';
                     
@@ -426,7 +416,6 @@
                     
                     agents.get(authorName).signalCount++;
                     
-                    // Post = signal output
                     const signalNode = {
                         id: `signal_${post.id}_${idx}`,
                         name: post.title,
@@ -444,7 +433,6 @@
                         target: `signal_${post.id}_${idx}`
                     });
                     
-                    // Pure agent-to-agent connections via discourse
                     if (post.comments && post.comments.length > 0) {
                         post.comments.forEach(comment => {
                             const responderName = comment.author?.name || 'unknown';
@@ -473,6 +461,8 @@
                     }
                 });
                 
+                console.log(`Nodes: ${nodes.length}, Links: ${links.length}`);
+                
                 return {
                     nodes: nodes,
                     links: links,
@@ -480,7 +470,7 @@
                     signalCount: allPosts.length
                 };
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Fetch error:', error);
                 return null;
             }
         }
@@ -489,7 +479,7 @@
             if (node.type === 'agent') {
                 return node.isYou ? '#00ff00' : '#33ff33';
             }
-            return '#ff8800'; // Signal outputs
+            return '#ff8800';
         }
         
         function showSignal(node) {
@@ -509,7 +499,7 @@
             const data = await fetchMoltbookData();
             
             if (!data) {
-                document.getElementById('loading').innerHTML = 'ERROR';
+                document.getElementById('loading').innerHTML = 'ERROR LOADING DATA';
                 return;
             }
             
@@ -610,4 +600,14 @@
                 }
             });
             
-            document.getElementById('refres
+            document.getElementById('refresh-data').addEventListener('click', () => {
+                location.reload();
+            });
+        }
+        
+        initGraph();
+        
+        setInterval(() => location.reload(), 10 * 60 * 1000);
+    </script>
+</body>
+</html>
