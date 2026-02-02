@@ -595,6 +595,7 @@
                 const links = [];
                 const agents = new Map();
                 
+                // First pass: create all agents and count their posts
                 allPosts.forEach((post, idx) => {
                     const authorName = post.author?.name || 'unknown';
                     
@@ -605,13 +606,19 @@
                             type: 'agent',
                             isYou: authorName === 'evil_robot_jas',
                             signalCount: 0,
-                            fieldStrength: 0
+                            interactionCount: 0, // How many times they commented on others
+                            receivedInteractions: 0 // How many comments they received
                         };
                         agents.set(authorName, agentNode);
                         nodes.push(agentNode);
                     }
                     
                     agents.get(authorName).signalCount++;
+                });
+                
+                // Second pass: create signal nodes and track interactions
+                allPosts.forEach((post, idx) => {
+                    const authorName = post.author?.name || 'unknown';
                     
                     const signalNode = {
                         id: `signal_${post.id}_${idx}`,
@@ -621,7 +628,8 @@
                         content: post.content || '',
                         author: authorName,
                         createdAt: post.created_at,
-                        url: `https://www.moltbook.com/posts/${post.id}`
+                        url: `https://www.moltbook.com/posts/${post.id}`,
+                        commentCount: post.comment_count || (post.comments ? post.comments.length : 0)
                     };
                     nodes.push(signalNode);
                     
@@ -630,6 +638,13 @@
                         target: `signal_${post.id}_${idx}`
                     });
                     
+                    // Track received interactions (comments on this post)
+                    const commentCount = post.comment_count || (post.comments ? post.comments.length : 0);
+                    if (commentCount > 0) {
+                        agents.get(authorName).receivedInteractions += commentCount;
+                    }
+                    
+                    // Process actual comments if available
                     if (post.comments && post.comments.length > 0) {
                         post.comments.forEach(comment => {
                             const responderName = comment.author?.name || 'unknown';
@@ -641,13 +656,14 @@
                                     type: 'agent',
                                     isYou: responderName === 'evil_robot_jas',
                                     signalCount: 0,
-                                    fieldStrength: 0
+                                    interactionCount: 0,
+                                    receivedInteractions: 0
                                 };
                                 agents.set(responderName, agentNode);
                                 nodes.push(agentNode);
                             }
                             
-                            agents.get(responderName).fieldStrength++;
+                            agents.get(responderName).interactionCount++;
                             
                             links.push({
                                 source: `agent_${responderName}`,
@@ -656,6 +672,12 @@
                             });
                         });
                     }
+                });
+                
+                // Calculate field strength for each agent
+                // Field strength = signals produced + interactions made + interactions received
+                agents.forEach(agent => {
+                    agent.fieldStrength = agent.signalCount + agent.interactionCount + agent.receivedInteractions;
                 });
                 
                 console.log(`Nodes: ${nodes.length}, Links: ${links.length}, Agents: ${agents.size}`);
@@ -687,6 +709,7 @@
             document.getElementById('post-meta').innerHTML = `
                 <strong>Agent:</strong> ${node.author}<br>
                 <strong>Timestamp:</strong> ${new Date(node.createdAt).toLocaleString()}<br>
+                <strong>Comments:</strong> ${node.commentCount || 0}<br>
                 <a href="${node.url}" target="_blank" style="color: #ff8800;">View Signal →</a>
             `;
             document.getElementById('post-viewer').style.display = 'block';
@@ -712,7 +735,7 @@
                     .graphData(data)
                     .nodeLabel(node => {
                         if (node.type === 'agent') {
-                            return `${node.name} (${node.signalCount} signals)`;
+                            return `${node.name} | Signals: ${node.signalCount} | Field: ${node.fieldStrength}`;
                         }
                         return node.title;
                     })
@@ -720,8 +743,7 @@
                     .nodeRelSize(2)
                     .nodeVal(node => {
                         if (node.type === 'agent') {
-                            const totalField = node.signalCount + node.fieldStrength;
-                            return node.isYou ? 15 : Math.max(4, totalField * 0.8);
+                            return node.isYou ? 15 : Math.max(4, node.fieldStrength * 0.8);
                         }
                         return 1;
                     })
@@ -739,16 +761,15 @@
                     .graphData(data)
                     .nodeLabel(node => {
                         if (node.type === 'agent') {
-                            return `<strong>AGENT: ${node.name}</strong><br>Signals: ${node.signalCount}<br>Field Strength: ${node.fieldStrength}${node.isYou ? '<br><span style="color:#0f0">⬅️ YOUR FIELD</span>' : ''}`;
+                            return `<strong>AGENT: ${node.name}</strong><br>Signals: ${node.signalCount}<br>Interactions: ${node.interactionCount}<br>Received: ${node.receivedInteractions}<br>Field Strength: ${node.fieldStrength}${node.isYou ? '<br><span style="color:#0f0">⬅️ YOUR FIELD</span>' : ''}`;
                         }
-                        return `<strong>${node.title}</strong><br>Agent: ${node.author}<br><em>Click to read signal</em>`;
+                        return `<strong>${node.title}</strong><br>Agent: ${node.author}<br>Comments: ${node.commentCount || 0}<br><em>Click to read signal</em>`;
                     })
                     .nodeColor(getFieldColor)
                     .nodeRelSize(1.5)
                     .nodeVal(node => {
                         if (node.type === 'agent') {
-                            const totalField = node.signalCount + node.fieldStrength;
-                            return node.isYou ? 25 : Math.max(6, totalField * 1.2);
+                            return node.isYou ? 25 : Math.max(6, node.fieldStrength * 1.2);
                         }
                         return 1.2;
                     })
