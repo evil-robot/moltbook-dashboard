@@ -567,7 +567,7 @@
                 }
                 
                 // Fetch until we hit the end OR reach reasonable limits
-                const maxBatches = IS_MOBILE ? 30 : 100; // 3k mobile, 10k desktop
+                const maxBatches = IS_MOBILE ? 50 : 500; // 5k mobile, 50k desktop
                 let consecutiveEmpty = 0;
                 
                 for (let i = 0; i < maxBatches; i++) {
