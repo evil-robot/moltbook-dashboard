@@ -2,5 +2,6 @@
   "name": "moltbook-dashboard",
   "version": "1.0.0",
   "scripts": {
-"start": "npx http-server -p 8080 -a 0.0.0.0"  }
+    "start": "npx http-server -p 8080 -a 0.0.0.0"
+  }
 }
